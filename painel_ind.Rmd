@@ -1,0 +1,100 @@
+---
+title: "PAINEL DE INDICADORES"
+output:
+  flexdashboard::flex_dashboard:
+    orientation: rows 
+    vertical_layout: fill
+    logo:
+    social: ["twitter", "instagram", "linkedin"]
+    theme: flatly
+    source_code: embed
+    navbar:
+    - title: Site do IDEMA
+    href: http://www.idema.rn.gov.br/
+    align: right
+runtime: shiny
+---
+
+```{r setup, include=FALSE}
+
+library(reader)
+library(flexdashboard)
+library(shiny)
+library(dplyr)
+library(ggplot2)
+library(plotly)
+
+
+
+setwd("C:/Users/08318311469/Desktop/FERNANDA")
+LE <- read.csv("LE.csv")
+
+setwd("C:/Users/08318311469/Desktop/FERNANDA")
+SPEA <- read.csv("SPEA.csv")
+
+setwd("C:/Users/08318311469/Desktop/FERNANDA")
+CENSO_ID <- read.csv("CENSO_IDEMA.csv")
+
+setwd("C:/Users/08318311469/Desktop/FERNANDA")
+CA_LICENCA <- read.csv("CA.csv")
+
+setwd("C:/Users/08318311469/Desktop/FERNANDA")
+PROD <- read.csv("PRODUTIVIDADE.csv")
+```
+
+Licenciamento ambiental
+===
+
+Inputs {.sidebar}
+---
+```{r}
+inputPanel(
+selectInput ("ATIV", label = "Selecione a atividade:", 
+            choices = unique(LE$ATIV), selected = "Empreendimentos Turisticos")
+)
+
+sliderInput("ano1", label = "Selecione o ano:",
+            min = 2018, max = 2021, value = 2021)
+```
+
+Row 
+-----------------------------------------------------------------------
+
+### Totalização de licenças ambientais emitidas por atividade (selecione o ano na barra ao lado)
+
+```{r}
+renderPlotly ({
+  g = filter(LE, ano1 == input$ano1)%>%
+    ggplot(., aes(x=QUANT, y=ATIV)) + geom_col(fill = "green4", color= "black")+
+    theme_bw() + labs(y = " ", x = "Quantidade de licenças emitidas")
+  ggplotly(g)
+})
+
+```
+
+### Licenças emitidas por atividade (selecione a atividade na barra ao lado)
+```{r}
+
+renderPlotly ({
+   g = filter(LE, ATIV == input$ATIV)%>%
+    ggplot(., aes(x=ano1, y=QUANT)) + geom_line(fill = "red4", color= "black")+ geom_point() +
+    theme_bw() + labs(y = " ", x = "Ano da emissão")
+  ggplotly(g)
+})
+
+```
+
+Row 
+---
+### Licenças ambientais emitidas por ano
+```{r}
+renderPlotly ({    
+  g = ggplot(PROD, aes(y = quant5, x=mes5, fill = factor(ano5))) + geom_col(position = "dodge", color= "black") + theme_bw() + labs(y = "Número de licenças emitidas", x = " ", fill = "Ano")
+    ggplotly(g)
+})
+
+
+```
+
+
+
